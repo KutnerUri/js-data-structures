@@ -65,29 +65,23 @@ export class Heap {
     let current = index;
 
     while (true) {
-      const leftIdx = this.toLeftChild(current);
-      const rightIdx = this.toRightChild(current);
+      const [leftIdx, rightIdx] = [
+        this.toLeftChild(current),
+        this.toRightChild(current),
+      ];
 
-      const hasLeftChild = leftIdx > -1;
-      const hasRightChild = rightIdx > -1;
+      const [hasLeftChild, hasRightChild] = [leftIdx > -1, rightIdx > -1];
 
-      if (!hasLeftChild && !hasRightChild) return; // finished
-      if (!hasRightChild) {
-        if (this.get(leftIdx) < this.get(current)) return;
+      let nextRoot = current;
+      if (hasLeftChild && this.get(leftIdx) < this.get(current))
+        nextRoot = leftIdx;
+      if (hasRightChild && this.get(nextRoot) < this.get(rightIdx))
+        nextRoot = rightIdx;
 
-        this.swap(current, leftIdx);
-        current = leftIdx;
-      } else {
-        const val = this.get(current);
-        const leftVal = this.get(leftIdx);
-        const rightVal = this.get(rightIdx);
+      if (current === nextRoot) return; // is balanced, or is leaf
+      this.swap(current, nextRoot);
 
-        if (val < leftVal && val < rightVal) return;
-
-        const nextRoot = leftVal < rightVal ? leftIdx : rightIdx;
-        this.swap(current, nextRoot);
-        current = nextRoot;
-      }
+      current = nextRoot;
     }
   }
 
