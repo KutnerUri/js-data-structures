@@ -2,7 +2,7 @@ import { expect, it } from "bun:test";
 import { Heap } from "./heap";
 
 it("pop() should return undefined when empty", () => {
-  const heap = new Heap();
+  const heap = Heap.maxHeap();
 
   const result = heap.pop();
 
@@ -10,7 +10,7 @@ it("pop() should return undefined when empty", () => {
 });
 
 it("should insert one item", () => {
-  const heap = new Heap();
+  const heap = Heap.maxHeap();
   heap.add(1);
   const popped = heap.pop();
 
@@ -18,7 +18,7 @@ it("should insert one item", () => {
 });
 
 it("should peek in order", () => {
-  const heap = new Heap();
+  const heap = Heap.maxHeap();
   heap.add(1);
   heap.add(3);
   heap.add(2);
@@ -30,7 +30,7 @@ it("should peek in order", () => {
 });
 
 it("should keep integrity after pop", () => {
-  const heap = new Heap();
+  const heap = Heap.maxHeap();
 
   heap.add(3);
   heap.add(1);

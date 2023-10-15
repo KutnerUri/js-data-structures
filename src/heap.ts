@@ -1,14 +1,16 @@
-type T = number; // WIP;
 type Index = number;
 
-// TODO - use compare function
-
-export class Heap {
+export class Heap<T> {
   store: T[] = [];
 
-  constructor(
-    public readonly compareFn: (a: T, b: T) => boolean = (a, b) => a < b
-  ) {}
+  constructor(public readonly compareFn: (a: T, b: T) => boolean) {}
+
+  static maxHeap(): Heap<number> {
+    return new Heap((a, b) => a < b);
+  }
+  static minHeap(): Heap<number> {
+    return new Heap((a, b) => a > b);
+  }
 
   get size() {
     return this.store.length;
@@ -56,7 +58,7 @@ export class Heap {
       const current = this.get(currentIdx);
       const parent = this.get(parentIdx);
 
-      if (parent >= current) return;
+      if (!this.compareFn(parent, current)) return;
 
       this.swap(parentIdx, currentIdx);
 
@@ -77,9 +79,12 @@ export class Heap {
       const [hasLeftChild, hasRightChild] = [leftIdx > -1, rightIdx > -1];
 
       let nextRoot = current;
-      if (hasLeftChild && this.get(current) < this.get(leftIdx))
+      if (hasLeftChild && this.compareFn(this.get(current), this.get(leftIdx)))
         nextRoot = leftIdx;
-      if (hasRightChild && this.get(nextRoot) < this.get(rightIdx))
+      if (
+        hasRightChild &&
+        this.compareFn(this.get(nextRoot), this.get(rightIdx))
+      )
         nextRoot = rightIdx;
 
       if (current === nextRoot) return; // is balanced, or is leaf
@@ -129,23 +134,3 @@ export class Heap {
     return Math.floor(index / 2);
   }
 }
-
-// a heap:
-//            50
-//       45        30
-// 40       20  25
-
-//              0, 1,  2,  3,  4,  5
-// array view: 50, 45, 30, 40, 20, 25
-
-// "nodes": 0
-//      1       2
-//   3     4  5
-
-// getting children:
-// 3 = 1 * 2 + 1
-// 5 = 2 * 2 + 1
-
-// getting parents:
-// 2 = 5 / 2 = 2.5
-// 1 = 3 / 2 = 1
