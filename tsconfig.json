@@ -6,6 +6,8 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
     "noEmit": true,
     "composite": true,
     "strict": true,
@@ -14,7 +16,7 @@
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
+    "allowJs": false,
     "types": [
       "bun-types" // add Bun global
     ]
