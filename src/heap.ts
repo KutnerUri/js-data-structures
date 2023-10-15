@@ -6,33 +6,37 @@ type Index = number;
 export class Heap {
   store: T[] = [];
 
-  constructor() {} // public compareFn: (a: T, b: T) => T
+  constructor(
+    public readonly compareFn: (a: T, b: T) => boolean = (a, b) => a < b
+  ) {}
 
   get size() {
     return this.store.length;
   }
 
-  add(item: T) {
+  get empty(): boolean {
+    return this.size === 0;
+  }
+
+  add(...items: T[]) {
+    items.forEach((item) => this._add(item));
+  }
+
+  private _add(item: T) {
     this.store.push(item);
     const newIdx = this.size - 1;
 
     this.balanceUp(newIdx);
-
-    this.store.push(item);
   }
 
   peek(): T | undefined {
     if (this.size < 1) return undefined;
-    if (this.size === 1) return this.get(0);
-
-    const max = this.store.reduce((max, current) => Math.max(max, current));
-
-    return max;
+    return this.get(0);
   }
 
   pop(): T | undefined {
-    if (this.size < 1) return undefined;
-    if (this.size === 0) return this.store.pop();
+    if (this.size === 0) return undefined;
+    if (this.size === 1) return this.store.pop();
 
     const root = this.get(0);
     const lastVal = this.store.pop()!;
@@ -46,13 +50,13 @@ export class Heap {
 
   private balanceUp(index: Index) {
     let currentIdx = index;
-    let parentIdx = this.toParent(index);
+    let parentIdx = this.toParent(currentIdx);
 
     while (parentIdx > -1) {
-      const current = this.store[currentIdx];
-      const parent = this.store[index];
+      const current = this.get(currentIdx);
+      const parent = this.get(parentIdx);
 
-      if (parent > current) return;
+      if (parent >= current) return;
 
       this.swap(parentIdx, currentIdx);
 
@@ -73,7 +77,7 @@ export class Heap {
       const [hasLeftChild, hasRightChild] = [leftIdx > -1, rightIdx > -1];
 
       let nextRoot = current;
-      if (hasLeftChild && this.get(leftIdx) < this.get(current))
+      if (hasLeftChild && this.get(current) < this.get(leftIdx))
         nextRoot = leftIdx;
       if (hasRightChild && this.get(nextRoot) < this.get(rightIdx))
         nextRoot = rightIdx;
@@ -86,8 +90,9 @@ export class Heap {
   }
 
   private get(index: Index): T {
-    if (index < 0) throw new Error("heap: out of bounds");
-    if (index >= this.store.length) throw new Error("heap: out of bounds");
+    if (index < 0) throw new Error(`heap: out of bounds (${index})`);
+    if (index >= this.store.length)
+      throw new Error(`heap: out of bounds (${index})`);
     return this.store[index];
   }
 
@@ -107,14 +112,14 @@ export class Heap {
 
   private toLeftChild(index: Index): Index {
     const childIdx = index * 2 + 1;
-    if (childIdx > this.size) return -1;
+    if (childIdx >= this.size) return -1;
 
     return childIdx;
   }
 
   private toRightChild(index: Index): Index {
     const childIdx = index * 2 + 2;
-    if (childIdx > this.size) return -1;
+    if (childIdx >= this.size) return -1;
 
     return childIdx;
   }
