@@ -1,13 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { RedBlackTree } from "./redBlackTree";
 
-// rules
-// every node is either red or black
-// the root is always black
-// leaves (null) are always black
-// red nodes can't have red children
-// "black height" is always the same - every path from root to leaves has the same number of black nodes
-// new insertions are always red
+// rules:
+// - every node is either red or black
+// - root and leaves are always black
+// - red nodes can't have red children
+// - "black height" must always be same - every path from root to leaves has the same number of black nodes
+// - new insertions are red
 
 describe("insertion", () => {
   it("should just insert into an empty tree", () => {
@@ -112,6 +111,64 @@ describe("insertion", () => {
     tree.insert(2);
 
     expect(tree.toString()).toBe("10(3(R2,R5),15)");
+  });
+
+  it("should fixup recursively up the tree", () => {
+    const tree = new RedBlackTree();
+
+    tree.insert(50);
+    tree.insert(30);
+    tree.insert(70);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(60);
+    tree.insert(80);
+
+    //        50(B)
+    //       /      \
+    //    30(B)    70(B)
+    //   /   \    /    \
+    // 20(R) 40(R) 60(R) 80(R)
+
+    // sanity
+    expect(tree.toString()).toBe("50(30(R20,R40),70(R60,R80))");
+
+    tree.insert(35);
+    //         50(B)
+    //       /       \
+    //    30(R)       70(B)
+    //   /   \       /    \
+    // 20(B) 40(B)  60(R) 80(R)
+    //      /
+    //    35(R)
+    // sanity
+    expect(tree.toString()).toBe("50(R30(20,40(R35,)),70(R60,R80))");
+
+    tree.insert(32);
+    //         50(B)                               50(B)
+    //       /       \                          /       \
+    //    30(R)       70(B)                  30(R)       70(B)
+    //   /   \       /    \                 /   \       /    \
+    // 20(B) 40(B)  60(R) 80(R)   --->   20(B) 35(B)  60(R) 80(R)
+    //      /                                   / \
+    //    35(R)                            32(R)   40(R)
+    //    /
+    //  32(R)
+    expect(tree.toString()).toBe("50(R30(20,35(R32,R40)),70(R60,R80))");
+
+    tree.insert(45);
+
+    //           50(B)                        50(B)                          50(B)                       35B
+    //        /       \                     /       \                      /       \                   /     \
+    //     30(R)       70(B)             30(R)       70(B)              35(B)       70(B)            30R     50R
+    //    /   \       /    \            /   \       /    \             /   \       /    \           /   \     / \
+    // 20(B) 35(B)  60(R) 80(R) ---> 20(B) 35(R)  60(R) 80(R) --->  30(R) 40(R)  60(R) 80(R) ---> 20    32  40   70
+    //        / \                           / \                     / \      \                               \   / \
+    //   32(R)   40(R)                 32(B)   40(B)            20(B) 32(B)   45(R)                         45R 60R 80R
+    //            \                             \
+    //             45(R)                         45(R)
+
+    expect(tree.toString()).toBe("35(R30(20,32),R50(40(,R45),70(R60,R80)))");
   });
 });
 
