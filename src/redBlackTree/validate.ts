@@ -7,11 +7,14 @@ import { RedBlackTreeNode } from "./redBlackTree";
 // - "black height" must always be same - every path from root to leaves has the same number of black nodes
 // - new insertions are red
 
-export function validateRedBlackTree(node?: RedBlackTreeNode<any>): boolean {
+export function validateRedBlackTree<T>(
+  node?: RedBlackTreeNode<T>,
+  compareFn: (a: T, b: T) => boolean = (a, b) => a <= b
+): boolean {
   return (
     validateRedNodes(node) &&
     calcBlackHeight(node) !== -1 &&
-    validateBinarySearchTree(node)
+    validateBinarySearchTree(node, compareFn)
   );
 }
 
@@ -36,10 +39,13 @@ function validateRedNodes(node?: RedBlackTreeNode<any>): boolean {
   return validateRedNodes(node?.left) && validateRedNodes(node?.right);
 }
 
-function validateBinarySearchTree(node?: RedBlackTreeNode<number>): boolean {
+function validateBinarySearchTree<T>(
+  node?: RedBlackTreeNode<T>,
+  compareFn: (a: T, b: T) => boolean = (a, b) => a <= b
+): boolean {
   if (!node) return true;
-  if (node.left && node.left.val > node.val) return false;
-  if (node.right && node.right.val < node.val) return false;
+  if (node.left && !compareFn(node.left.val, node.val)) return false;
+  if (node.right && !compareFn(node.val, node.right.val)) return false;
 
   return true;
 }

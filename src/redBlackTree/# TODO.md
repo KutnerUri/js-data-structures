@@ -6,5 +6,5 @@
 - [x] deletion
     - [x] impl. rebalance on deletion
 - [v] replaceChild() - consider replacing the new child's parent parent node
-- [ ] tree/node generic type
+- [v] tree/node generic type
 - [ ] 

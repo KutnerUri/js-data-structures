@@ -6,7 +6,7 @@ import { leftestChild } from "./utils";
  * @template T The type of values stored in the tree.
  */
 export class BinarySearchTree<
-  T extends number,
+  T,
   Node extends BinaryTreeNode<T> = BinaryTreeNode<T>
 > {
   /**
@@ -25,19 +25,23 @@ export class BinarySearchTree<
       compareFn(a, b) && compareFn(b, a)
   ) {}
 
+  /** helper method, to be overridden by inheritors */
+  protected createNode(val: T): Node {
+    return new BinaryTreeNode<T>(val) as Node;
+  }
+
   /**
    * Inserts a new value into the tree.
    * @param val The value to insert.
    * @returns The newly created node.
    */
   insert(val: T): Node {
-    // TODO
-    const node = new BinaryTreeNode(val) as Node;
+    const node = this.createNode(val);
     this._insert(node);
     return node;
   }
 
-  protected _insert(node: Node) {
+  protected _insert(node: Node): Node {
     if (!this.root) return (this.root = node);
 
     let current = this.root;
@@ -81,7 +85,7 @@ export class BinarySearchTree<
    * @returns The deleted node.
    * @private
    */
-  private _delete(node: Node) {
+  private _delete(node: Node): Node {
     const { parent, left, right } = node;
 
     let nextNode: Node | undefined = undefined;
@@ -155,11 +159,11 @@ export class BinarySearchTree<
   }
 
   toString(): string {
-    return recursiveToString(this.root!);
+    return recursiveToString(this.root);
   }
 }
 
-function recursiveToString(node?: BinaryTreeNode<number>): string {
+function recursiveToString(node?: BinaryTreeNode<any>): string {
   if (!node) return "";
   let result = node.toString();
   if (!node.left && !node.right) return result;

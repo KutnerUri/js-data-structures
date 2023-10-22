@@ -199,7 +199,6 @@ describe("insertion", () => {
           expect(count(tree.root)).toBe(numberOfNodes);
         }
 
-        // expect(tree.root).toSatisfy(validateRedBlackTree);
         expect(validateRedBlackTree(tree.root)).toBeTrue();
       }
     });

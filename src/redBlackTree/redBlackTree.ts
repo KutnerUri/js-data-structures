@@ -16,20 +16,24 @@ export class RedBlackTreeNode<T> extends BinaryTreeNode<T> {
    * is a red node
    */
   isRed: boolean = true;
-  //   override override parent?: BinaryTreeNode<T> | undefined = undefined;
 
   override toString(): string {
     return `${this.isRed ? "R" : ""}${super.toString()}`;
   }
 }
 
-// TODO - type T
+export class RedBlackTree<
+  T,
+  Node extends RedBlackTreeNode<T>
+> extends BinarySearchTree<T, Node> {
+  override root?: Node | undefined = undefined;
 
-export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
-  override root?: RedBlackTreeNode<T> | undefined = undefined;
+  protected override createNode(val: T): Node {
+    return new RedBlackTreeNode(val) as Node;
+  }
 
-  override insert(val: T): BinaryTreeNode<T> {
-    const node = new RedBlackTreeNode(val);
+  override insert(val: T): Node {
+    const node = this.createNode(val);
     super._insert(node);
 
     this._insertFixup(node);
@@ -37,15 +41,15 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
     return node;
   }
 
-  override delete(value: T): BinaryTreeNode<T> | undefined {
-    const node = this.find(value) as RedBlackTreeNode<T>;
+  override delete(value: T): Node | undefined {
+    const node = this.find(value) as Node;
     if (!node) return undefined;
 
     this.deleteNode(node);
     return node;
   }
 
-  private deleteNode(node: RedBlackTreeNode<T>) {
+  private deleteNode(node: Node) {
     const { left, right } = node;
     const numberOfChildren = (left ? 1 : 0) + (right ? 1 : 0);
 
@@ -73,7 +77,7 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
     }
   }
 
-  private _insertFixup(node: RedBlackTreeNode<T>) {
+  private _insertFixup(node: Node) {
     while (node.isRed && node.parent?.isRed) {
       // grandparent has to exist, because parent is red
       let grandparent = node.parent.parent!;
@@ -97,10 +101,10 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
     if (this.root?.isRed) this.root.isRed = false;
   }
 
-  private _deleteFixup(node: RedBlackTreeNode<T>) {
+  private _deleteFixup(node: Node) {
     // you are removing a black node with no children.
     // the removal decrements the black height on this side of the tree,
-    // so we need to push this side down, bubbling up until we rebalance the tree.
+    // so we need to push this side down, bubbling up until we re-balance the tree.
 
     let current = node;
 
@@ -207,7 +211,7 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
   }
 }
 
-function fixRotateColor(node: RedBlackTreeNode<any>) {
+function fixRotateColor<Node extends RedBlackTreeNode<any>>(node: Node): Node {
   let parent = node.parent!;
   const grandparent = parent.parent!;
 
