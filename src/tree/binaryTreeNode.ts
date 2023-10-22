@@ -54,7 +54,7 @@ export class BinaryTreeNode<T> {
    * @param next The node to replace the child node with.
    * @returns True if the child node was successfully replaced, false otherwise.
    */
-  replaceChild(node: BinaryTreeNode<T>, next?: BinaryTreeNode<T>): boolean {
+  replaceChild(node: this, next?: this): boolean {
     if (this.left === node) {
       this.left = next;
       return true;
@@ -63,6 +63,8 @@ export class BinaryTreeNode<T> {
       this.right = next;
       return true;
     }
+
+    if (next) next.parent = this;
 
     return false;
   }

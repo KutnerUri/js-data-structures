@@ -43,12 +43,29 @@ describe("BinaryTreeNode", () => {
   });
 
   describe("rotateLeft()", () => {
-    it("should handle rotation when node is root", () => {
-      const root = new BinaryTreeNode(10);
-      root.right = new BinaryTreeNode(20);
-      root.rotateLeft();
-      expect(root.parent?.val).toBe(20);
-      expect(root.parent?.left?.val).toBe(10);
+    it("should handle rotation when node is root, and has only right child", () => {
+      //   a    -->     c
+      //  / \          / \
+      // b   c        a   f
+      //    / \      / \
+      //   d   f    b   d
+
+      const a = new BinaryTreeNode(10);
+      const b = new BinaryTreeNode(20);
+      a.right = b;
+      a.right.parent = a;
+
+      const newRoot = a.rotateLeft();
+
+      expect(newRoot).toBe(b);
+      expect(newRoot.right).toBeUndefined();
+      expect(newRoot.parent).toBeUndefined();
+
+      const newLeft = newRoot.left;
+      expect(newLeft).toBe(a);
+      expect(newLeft?.left).toBeUndefined();
+      expect(newLeft?.right).toBeUndefined();
+      expect(newLeft?.parent).toBe(newRoot);
     });
 
     it("should throw error when no right child", () => {
@@ -57,91 +74,161 @@ describe("BinaryTreeNode", () => {
     });
 
     it("should handle rotation with parent and both children", () => {
+      // p            p
+      //  \            \
+      //   a    -->     c
+      //  / \          / \
+      // b   c        a   f
+      //    / \      / \
+      //   d   f    b   d
+
       const parent = new BinaryTreeNode(5);
-      const node = new BinaryTreeNode(10);
-      const left = new BinaryTreeNode(7);
-      const right = new BinaryTreeNode(20);
-      parent.right = node;
-      node.left = left;
-      node.right = right;
-      node.parent = parent;
+      const a = new BinaryTreeNode(10);
+      const b = new BinaryTreeNode(7);
+      const c = new BinaryTreeNode(20);
+      const d = new BinaryTreeNode(15);
+      const f = new BinaryTreeNode(30);
 
-      node.rotateLeft();
+      parent.right = a;
+      a.left = b;
+      a.right = c;
+      a.parent = parent;
+      b.parent = a;
+      c.parent = a;
+      c.left = d;
+      c.right = f;
+      d.parent = c;
+      f.parent = c;
 
-      expect(node.parent?.val).toBe(20);
-      expect(right.left?.val).toBe(10);
-      expect(parent.right?.val).toBe(20);
+      const newNode = a.rotateLeft();
+      expect(newNode).toBe(c);
+      expect(newNode.parent).toBe(parent);
+
+      const newLeft = newNode.left;
+      expect(newLeft).toBe(a);
+      expect(newLeft?.parent).toBe(newNode);
+      expect(newLeft?.left).toBe(b);
+      expect(b.parent).toBe(newLeft);
+      expect(newLeft?.right).toBe(d);
+      expect(d.parent).toBe(newLeft);
+
+      const newRight = newNode.right;
+      expect(newRight).toBe(f);
+      expect(newRight?.parent).toBe(newNode);
     });
 
-    it("should handle rotation with parent but no left child", () => {
+    it("should handle rotation when left child is missing", () => {
+      // p            p
+      //  \            \
+      //   a    -->     c
+      //    \          / \
+      //     c        a   f
+      //    / \        \
+      //   d   f        d
+
       const parent = new BinaryTreeNode(5);
-      const node = new BinaryTreeNode(10);
-      const right = new BinaryTreeNode(20);
-      parent.right = node;
-      node.right = right;
-      node.parent = parent;
+      const a = new BinaryTreeNode(10);
+      const c = new BinaryTreeNode(20);
+      const d = new BinaryTreeNode(15);
+      const f = new BinaryTreeNode(30);
 
-      node.rotateLeft();
+      parent.right = a;
+      a.right = c;
+      a.parent = parent;
+      c.parent = a;
+      c.left = d;
+      c.right = f;
+      d.parent = c;
+      f.parent = c;
 
-      expect(node.parent?.val).toBe(20);
-      expect(right.left?.val).toBe(10);
-      expect(parent.right?.val).toBe(20);
+      const newNode = a.rotateLeft();
+      expect(newNode).toBe(c);
+      expect(newNode.parent).toBe(parent);
+
+      const newLeft = newNode.left;
+      expect(newLeft).toBe(a);
+      expect(newLeft?.parent).toBe(c);
+      expect(newLeft?.left).toBeUndefined();
+      expect(newLeft?.right).toBe(d);
+
+      const newRight = newNode.right;
+      expect(newRight).toBe(f);
+      expect(newRight?.parent).toBe(c);
     });
 
-    it("should handle rotation when right child has a left child", () => {
-      const node = new BinaryTreeNode(10);
-      const right = new BinaryTreeNode(20);
-      const rightLeft = new BinaryTreeNode(15);
-      node.right = right;
-      right.left = rightLeft;
-
-      node.rotateLeft();
-
-      expect(node.right?.val).toBe(15);
-      expect(right.left?.val).toBe(10);
-      expect(node.parent?.val).toBe(20);
-    });
-
-    it("should handle rotation when right child has no left child", () => {
-      const node = new BinaryTreeNode(10);
-      const right = new BinaryTreeNode(20);
-      node.right = right;
-
-      node.rotateLeft();
-
-      expect(node.right).toBeUndefined;
-      expect(right.left?.val).toBe(10);
-      expect(node.parent?.val).toBe(20);
-    });
-
-    it("should handle rotation when node is left child of parent", () => {
+    it("should handle rotation when left grandchild is missing", () => {
+      // p            p
+      //  \            \
+      //   a    -->     c
+      //    \          / \
+      //     c        a   f
+      //      \
+      //       f
       const parent = new BinaryTreeNode(5);
-      const node = new BinaryTreeNode(10);
-      const right = new BinaryTreeNode(20);
-      parent.left = node;
-      node.parent = parent;
-      node.right = right;
+      const a = new BinaryTreeNode(10);
+      const c = new BinaryTreeNode(20);
+      const f = new BinaryTreeNode(30);
 
-      node.rotateLeft();
+      parent.right = a;
+      a.parent = parent;
+      a.right = c;
+      c.parent = a;
+      c.right = f;
+      f.parent = c;
 
-      expect(node.parent?.val).toBe(20);
-      expect(right.left?.val).toBe(10);
-      expect(parent.left?.val).toBe(20);
+      const newNode = a.rotateLeft();
+
+      expect(newNode).toBe(c);
+      expect(newNode.parent).toBe(parent);
+
+      const newLeft = newNode.left;
+      expect(newLeft).toBe(a);
+      expect(newLeft?.parent).toBe(c);
+      expect(newLeft?.left).toBeUndefined();
+      expect(newLeft?.right).toBeUndefined();
+
+      const newRight = newNode.right;
+      expect(newRight).toBe(f);
+      expect(newRight?.parent).toBe(c);
+
+      expect(newRight?.right).toBeUndefined();
+      expect(newRight?.left).toBeUndefined();
     });
 
-    it("should handle rotation when node is right child of parent", () => {
+    it("should handle rotation when right grandchild is missing", () => {
+      // p            p
+      //  \            \
+      //   a    -->     c
+      //    \          /
+      //     c        a   
+      //    /          \
+      //   d            d
+
       const parent = new BinaryTreeNode(5);
-      const node = new BinaryTreeNode(10);
-      const right = new BinaryTreeNode(20);
-      parent.right = node;
-      node.parent = parent;
-      node.right = right;
+      const a = new BinaryTreeNode(10);
+      const c = new BinaryTreeNode(20);
+      const d = new BinaryTreeNode(15);
 
-      node.rotateLeft();
+      parent.right = a;
+      a.parent = parent;
+      a.right = c;
+      c.parent = a;
+      c.left = d;
+      d.parent = c;
 
-      expect(node.parent?.val).toBe(20);
-      expect(right.left?.val).toBe(10);
-      expect(parent.right?.val).toBe(20);
+      const newNode = a.rotateLeft();
+
+      expect(newNode).toBe(c);
+      expect(newNode.parent).toBe(parent);
+      expect(newNode.right).toBeUndefined();
+
+      const newLeft = newNode.left;
+      expect(newLeft).toBe(a);
+      expect(newLeft?.parent).toBe(c);
+      expect(newLeft?.left).toBeUndefined();
+      expect(newLeft?.right).toBe(d);
+
+      expect(d.parent).toBe(newLeft);
     });
   });
 

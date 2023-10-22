@@ -51,6 +51,7 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
 
     // leaf
     if (numberOfChildren === 0) {
+      // black leaf, special rebalance
       if (!node.isRed) this._deleteFixup(node);
 
       transplant(this, node, undefined);
@@ -64,6 +65,7 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
       transplant(this, node, child);
     }
 
+    // inner-tree node, replace with successor, and delete successor instead
     if (numberOfChildren === 2) {
       const successor = leftestChild(node.right!);
       node.val = successor.val;
@@ -102,13 +104,21 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
 
     let current = node;
 
-    // TODO - try to continue the loop after each case.
-    // will simplify the if-s
-
-    // bubble rebalance until reaching a red node
+    // bubble re-balance until reaching a red node
     while (!!current.parent && !current.isRed) {
       const isLeft = current.parent?.left === current;
       let sibling = getSibling(current)!;
+
+      // left case: (mirror for right case)
+      //
+      //     P                  S(B)
+      //   /   \               /    \
+      // C(B-) S(R)   --->   P(R)    b
+      //       /  \          / \
+      //      a    b      C(B)  a
+      //
+      // a must be black, because S is black,
+      // will continue up the tree in case 2 or finish in case 3 or 4
 
       // case 1: sibling is red
       if (sibling.isRed) {
@@ -116,25 +126,30 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
         const parent = current.parent!;
         parent.isRed = true;
 
-        if (isLeft) parent.rotateLeft();
-        else parent.rotateRight();
-
-        // update sibling, continue to the next cases
-        sibling = getSibling(current)!;
+        if (isLeft) this.rotateLeft(parent);
+        else this.rotateRight(parent);
+        // continue from the new location
       }
 
       // case 2: sibling is black, and both its children are black
       // we can transfer the imbalance to it, and continue up the tree
-      if (!sibling.isRed && !sibling.left?.isRed && !sibling.right?.isRed) {
+
+      //
+      //     P                  P
+      //   /   \               /  \
+      // C(B-) S(B)   --->   C(B)  S(R)
+      //       /  \               /   \
+      //     (B)  (B)           (B)   (B)
+      //
+      else if (!sibling.left?.isRed && !sibling.right?.isRed) {
         sibling.isRed = true;
         current = current.parent;
-
-        continue;
       }
 
-      if (!current.isRed && !sibling.isRed) {
-        // this is "triangle" case, we need to rotate it to turn it into case 4
-        // case 3: current and sibling is black, the sibling's opposing child is red, but the other is not
+      // sibling is black, and one or more of its children is red
+      else {
+        // case 3: current and sibling is black, and its opposite nephew is also black
+        // this is "triangle" case, we need to rotate it, and turn it into case 4
 
         // left case: (mirror for right case)
         //
@@ -147,45 +162,44 @@ export class RedBlackTree<T extends number> extends BinarySearchTree<T> {
         //                                    (B)
 
         if (
-          (isLeft && sibling.left?.isRed && !sibling.right?.isRed) ||
-          (!isLeft && sibling.right?.isRed && !sibling.left?.isRed)
+          (isLeft && !sibling.right?.isRed) ||
+          (!isLeft && !sibling.left?.isRed)
         ) {
+          const nephew = isLeft ? sibling.left! : sibling.right!;
+          nephew.isRed = false;
+
           sibling.isRed = true;
+          if (isLeft) this.rotateRight(sibling);
+          else this.rotateLeft(sibling);
 
-          if (isLeft) sibling.left!.isRed = false;
-          else sibling.right!.isRed = false;
-
-          if (isLeft) sibling.rotateRight();
-          else sibling.rotateLeft();
-
+          // the "near" nephew is now the sibling
+          sibling = nephew;
           // continue to case 4
-          sibling = getSibling(current)!;
         }
 
         // case 4: current is black, sibling is black, and the opposing Nephew is red
-        // we can rotate the tree to push current down, and return the tree to balance.
+        // we can rotate the tree to push `current` down, re-balancing the tree
         //
         // left case: (mirror for right case)
         //
-        //    P(?)                   S(?)
+        //    P(?)                    S(?)
         //   /    \                  /   \
         // C(B-)  S(B)      --->    P(B)  N(B)
         //       /  \              / \
         //      ??   N(R)        C(B) ??
         //
+        const parent = current.parent!;
+        sibling.isRed = parent.isRed;
+        parent.isRed = false;
+
         const opposingNephew = isLeft ? sibling.right : sibling.left;
-        if (opposingNephew?.isRed) {
-          const parent = current.parent!;
-          sibling.isRed = parent.isRed;
-          parent.isRed = false;
+        opposingNephew!.isRed = false;
 
-          opposingNephew.isRed = false;
+        if (isLeft) this.rotateLeft(parent);
+        else this.rotateRight(parent);
 
-          if (isLeft) parent.rotateLeft();
-          else parent.rotateRight();
-
-          return; // we fixed the imbalance, an current node is not red.
-        }
+        // we fixed the imbalance, an current node is not red.
+        return;
       }
     }
 

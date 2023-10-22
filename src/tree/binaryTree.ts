@@ -142,15 +142,29 @@ export class BinarySearchTree<
     return undefined;
   }
 
+  rotateLeft(node: Node): void {
+    const isRoot = node == this.root;
+    const next = node.rotateLeft();
+    if (isRoot) this.root = next;
+  }
+
+  rotateRight(node: Node): void {
+    const isRoot = node == this.root;
+    const next = node.rotateRight();
+    if (isRoot) this.root = next;
+  }
+
   toString(): string {
-    return recToString(this.root!);
+    return recursiveToString(this.root!);
   }
 }
 
-function recToString(node?: BinaryTreeNode<number>): string {
+function recursiveToString(node?: BinaryTreeNode<number>): string {
   if (!node) return "";
   let result = node.toString();
   if (!node.left && !node.right) return result;
 
-  return `${result}(${recToString(node.left)},${recToString(node.right)})`;
+  return `${result}(${recursiveToString(node.left)},${recursiveToString(
+    node.right
+  )})`;
 }

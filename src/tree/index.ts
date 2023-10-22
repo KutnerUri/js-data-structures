@@ -1,3 +1,3 @@
 export { BinarySearchTree } from "./binaryTree";
 export { BinaryTreeNode } from "./binaryTreeNode";
-export { getUncle } from "./utils";
+export { getSibling, getUncle, transplant, leftestChild, count } from "./utils";
