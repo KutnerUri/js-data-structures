@@ -1,14 +1,18 @@
 import { BinaryTreeNode } from "./binaryTreeNode";
+import { leftestChild } from "./utils";
 
 /**
  * Represents a binary search tree.
  * @template T The type of values stored in the tree.
  */
-export class BinarySearchTree<T extends number> {
+export class BinarySearchTree<
+  T extends number,
+  Node extends BinaryTreeNode<T> = BinaryTreeNode<T>
+> {
   /**
    * The root node of the tree.
    */
-  root?: BinaryTreeNode<T> = undefined;
+  root?: Node = undefined;
 
   /**
    * Creates a new instance of the BinarySearchTree class.
@@ -26,13 +30,14 @@ export class BinarySearchTree<T extends number> {
    * @param val The value to insert.
    * @returns The newly created node.
    */
-  insert(val: T): BinaryTreeNode<T> {
-    const node = new BinaryTreeNode(val);
+  insert(val: T): Node {
+    // TODO
+    const node = new BinaryTreeNode(val) as Node;
     this._insert(node);
     return node;
   }
 
-  protected _insert(node: BinaryTreeNode<T>) {
+  protected _insert(node: Node) {
     if (!this.root) return (this.root = node);
 
     let current = this.root;
@@ -62,7 +67,7 @@ export class BinarySearchTree<T extends number> {
    * @param value The value to delete.
    * @returns The deleted node, or undefined if the value was not found.
    */
-  delete(value: T): BinaryTreeNode<T> | undefined {
+  delete(value: T): Node | undefined {
     const node = this.find(value);
     if (!node) return undefined;
 
@@ -76,10 +81,10 @@ export class BinarySearchTree<T extends number> {
    * @returns The deleted node.
    * @private
    */
-  private _delete(node: BinaryTreeNode<T>) {
+  private _delete(node: Node) {
     const { parent, left, right } = node;
 
-    let nextNode: BinaryTreeNode<T> | undefined = undefined;
+    let nextNode: Node | undefined = undefined;
     if (!left && !right) {
       nextNode = undefined;
     } else if (!left) {
@@ -121,7 +126,7 @@ export class BinarySearchTree<T extends number> {
    * @returns The node containing the value, or undefined if the value was not found.
    * @private
    */
-  private find(value: T): BinaryTreeNode<T> | undefined {
+  protected find(value: T): Node | undefined {
     let current = this.root;
 
     while (current) {
@@ -149,27 +154,3 @@ function recToString(node?: BinaryTreeNode<number>): string {
 
   return `${result}(${recToString(node.left)},${recToString(node.right)})`;
 }
-
-// utils
-
-function leftestChild<T>(node: BinaryTreeNode<T>) {
-  let n = node;
-  while (n.left !== undefined) {
-    n = n.left;
-  }
-
-  return n;
-}
-
-// example tree
-//
-//                        10
-//          5                                 15
-//   0             7                13                20
-// -1    3      6    8          11      14       18         24
-
-//
-//           x
-//      5           15
-// 0       7     13     20
-//

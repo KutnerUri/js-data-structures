@@ -2,8 +2,9 @@
 
 - [x] tests for multiple rebalance
     -  [x] impl. recursive rebalance
-- [ ] impl. rebalance on deletion
-- [ ] recurse rebalance on insert (currently only 1 level)
-- [ ] deletion
+- [x] recurse rebalance on insert (currently only 1 level)
+- [x] deletion
+    - [x] impl. rebalance on deletion
     - [ ] 
+- [ ] tree/node generic type
 - [ ] 
