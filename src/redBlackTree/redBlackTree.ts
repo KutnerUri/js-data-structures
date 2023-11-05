@@ -221,11 +221,11 @@ function fixRotateColor<Node extends RedBlackTreeNode<any>>(node: Node): Node {
   // handle "triangles":
 
   // "LeftRight"
-  // G            G
-  //  \            \
-  //   P(R) -->   new
-  //  /              \
-  // new(R )          P
+  // G          G
+  //  \          \
+  //   P(R) -->  new
+  //  /            \
+  // new(R)         P
   if (isParentLeft && !isLeft) {
     parent.rotateLeft();
     parent = node;
